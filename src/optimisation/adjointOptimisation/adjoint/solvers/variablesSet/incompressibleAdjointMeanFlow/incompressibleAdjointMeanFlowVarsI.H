@@ -69,5 +69,4 @@ Foam::incompressibleAdjointMeanFlowVars::phiaInst()
 }
 
 
-
 // ************************************************************************* //

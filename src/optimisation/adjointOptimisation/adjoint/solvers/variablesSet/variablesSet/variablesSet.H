@@ -5,8 +5,8 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2007-2019 PCOpt/NTUA
-    Copyright (C) 2013-2019 FOSS GP
+    Copyright (C) 2007-2019, 2022 PCOpt/NTUA
+    Copyright (C) 2013-2019, 2022 FOSS GP
     Copyright (C) 2019 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
@@ -114,6 +114,18 @@ protected:
             autoPtr<GeometricField<Type, PatchField, GeoMesh>>& p1,
             autoPtr<GeometricField<Type, PatchField, GeoMesh>>& p2
         );
+
+        //- Add a scheme to dviSchemes
+        bool addDivScheme
+        (
+            const word& phiName,
+            const word& varName,
+            const word& fallBackPhiName,
+            const word& fallBackVarName
+        );
+
+        //- Write fvSchemes to file, when divSchemes has been updated
+        void writeFvSchemes(bool write) const;
 
 
 public:
@@ -223,6 +235,10 @@ public:
 
             //- Transfer the fields of another variablesSet to this
             virtual void transfer(variablesSet& vars);
+
+            //- Add extra convection schemes
+            //  Does nothing in base
+            virtual void addExtraSchemes(const word& phi=word::null);
 };
 
 

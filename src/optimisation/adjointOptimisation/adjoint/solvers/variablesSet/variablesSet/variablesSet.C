@@ -5,8 +5,8 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2007-2019 PCOpt/NTUA
-    Copyright (C) 2013-2019 FOSS GP
+    Copyright (C) 2007-2019, 2022 PCOpt/NTUA
+    Copyright (C) 2013-2019, 2022 FOSS GP
     Copyright (C) 2019-2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
@@ -54,6 +54,83 @@ namespace Foam
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 defineTypeNameAndDebug(variablesSet, 0);
+
+
+// * * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * //
+
+bool variablesSet::addDivScheme
+(
+    const word& phiName,
+    const word& varName,
+    const word& fallBackPhiName,
+    const word& fallBackVarName
+)
+{
+    dictionary& divSchemes = mesh_.divSchemes();
+    // Scheme name with the current field names
+    const word schemeName("div(" + phiName + ',' + varName +')');
+    if (!divSchemes.found(schemeName))
+    {
+        // If the specific scheme name does not exist, lookup for the
+        // fallBack one and use it for the current field names combination
+        // as well
+        const word fallBackName
+            ("div(" + fallBackPhiName + ',' + fallBackVarName +')');
+        if (divSchemes.found(fallBackName))
+        {
+            ITstream& fallBackScheme = divSchemes.lookup(fallBackName);
+            primitiveEntry addedScheme(schemeName, fallBackScheme);
+            divSchemes.add(addedScheme);
+            DebugInfo
+                << "Added scheme " << addedScheme << endl;
+            return true;
+        }
+        else
+        {
+            WarningInFunction
+                << "Failed to locate an exact of fall-back scheme for term "
+                << schemeName << nl
+                << "This might lead to an unstable simulation"
+                << endl;
+        }
+    }
+    return false;
+}
+
+
+void variablesSet::writeFvSchemes(const bool write) const
+{
+    if (write)
+    {
+        // Seems to call objectRegistry::writeObject instead of
+        // IOdictionary::writeObject
+        /*
+        fvSchemes& schemes = mesh_;
+        IOdictionary& schemesDict = schemes;
+        schemesDict.regIOobject::write(true);
+        */
+        if (Pstream::master())
+        {
+            schemesLookup& schemesDict = mesh_;
+            IOdictionary iodict
+            (
+                IOobject
+                (
+                    "fvSchemes",
+                    mesh_.time().caseSystem(),
+                    mesh_,
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE,
+                    false
+                )
+            );
+            iodict = schemesDict;
+            iodict.subDict("divSchemes") = mesh_.divSchemes();
+            iodict.regIOobject::write(true);
+        }
+    }
+}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -194,6 +271,12 @@ tmp<volVectorField> variablesSet::autoCreateMeshMovementField
 
 
 void variablesSet::transfer(variablesSet& vars)
+{
+    // Does nothing in base
+}
+
+
+void variablesSet::addExtraSchemes(const word&)
 {
     // Does nothing in base
 }

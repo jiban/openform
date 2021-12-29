@@ -5,8 +5,8 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2007-2021 PCOpt/NTUA
-    Copyright (C) 2013-2021 FOSS GP
+    Copyright (C) 2007-2022 PCOpt/NTUA
+    Copyright (C) 2013-2022 FOSS GP
     Copyright (C) 2019 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
@@ -134,6 +134,56 @@ void incompressibleAdjointVars::updatePrimalBasedQuantities()
         }
     }
     */
+}
+
+
+void incompressibleAdjointVars::addExtraSchemes(const word& externalPhi)
+{
+    const surfaceScalarField& phi = primalVars_.phi();
+
+    word phiName(phi.name());
+    word fallBackMomPhiName("-phi");
+    if (externalPhi != word::null)
+    {
+        phiName = externalPhi;
+        fallBackMomPhiName = "-rhoPhi";
+    }
+    // Momentum scheme
+    bool added =
+        addDivScheme("-" + phiName, UaInst().name(), fallBackMomPhiName, "Ua");
+
+    // Adjoint turbulence model schemes
+    const wordList& TMnames =
+        adjointTurbulence_().getAdjointTMVariablesBaseNames();
+    const autoPtr<volScalarField>& adjointTMVar1 =
+        adjointTurbulence_().getAdjointTMVariable1InstPtr();
+    if (adjointTMVar1)
+    {
+        bool addedTMVar1 =
+            addDivScheme
+                ("-" + phi.name(), adjointTMVar1().name(), "-phi", TMnames[0]);
+        added = added || addedTMVar1;
+    }
+    const autoPtr<volScalarField>& adjointTMVar2 =
+        adjointTurbulence_().getAdjointTMVariable2InstPtr();
+    if (adjointTMVar2)
+    {
+        bool addedTMVar2 =
+            addDivScheme
+                ("-" + phi.name(), adjointTMVar2().name(), "-phi", TMnames[1]);
+        added = added || addedTMVar2;
+    }
+
+    // Adjoint eikonal solver
+    if (adjointTurbulence_().includeDistance())
+    {
+        const word daName(useSolverNameForFields() ? "da" + solverName_ : "da");
+        bool addedDa = addDivScheme("-yPhi", daName , "-yPhi", "da");
+        added = added || addedDa;
+    }
+    // If schemed were added, write the fvSchemes dictionary to avoid the
+    // added info being lost if the user changes fvSchemes in run-time
+    writeFvSchemes(added);
 }
 
 

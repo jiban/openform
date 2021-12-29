@@ -36,6 +36,26 @@ namespace Foam
     defineTypeNameAndDebug(solver, 0);
 }
 
+
+// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
+
+void Foam::solver::addExtraSchemes()
+{
+    if (vars_().useSolverNameForFields())
+    {
+        WarningInFunction
+            << "useSolverNameForFields is set to true for solver "
+            << solverName() << nl << tab
+            << "Appending variable names with the solver name" << nl << tab
+            << "and adding appropriate entries to divSchemes" << nl << endl;
+
+    }
+    DebugInfo
+        << "Attempting to add schemes for solver " << solverName_ << endl;
+    vars_().addExtraSchemes();
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::solver::solver

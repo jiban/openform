@@ -68,10 +68,10 @@ protected:
     // Protected Member Functions
 
         //- No copy construct
-        incompressibleAdjointVars(const incompressibleAdjointVars&);
+        incompressibleAdjointVars(const incompressibleAdjointVars&) = delete;
 
         //- No copy assignment
-        void operator=(const incompressibleAdjointVars&);
+        void operator=(const incompressibleAdjointVars&) = delete;
 
 
 public:
@@ -123,6 +123,9 @@ public:
             //- Update primal based quantities of the adjoint boundary
             //  conditions
             virtual void updatePrimalBasedQuantities();
+
+            //- Add extra convection schemes
+            virtual void addExtraSchemes(const word& phi=word::null);
 };
 
 

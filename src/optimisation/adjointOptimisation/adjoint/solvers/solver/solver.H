@@ -91,6 +91,9 @@ protected:
         //- No copy assignment
         void operator=(const solver&) = delete;
 
+        //- Add entries to divSchemes
+        virtual void addExtraSchemes();
+
 
 public:
 

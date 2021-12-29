@@ -5,8 +5,8 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2007-2021 PCOpt/NTUA
-    Copyright (C) 2013-2021 FOSS GP
+    Copyright (C) 2007-2022 PCOpt/NTUA
+    Copyright (C) 2013-2022 FOSS GP
     Copyright (C) 2019-2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
@@ -498,6 +498,45 @@ bool incompressibleVars::write() const
     }
 
     return false;
+}
+
+
+void incompressibleVars::addExtraSchemes(const word& externalPhi)
+{
+    const surfaceScalarField& phi = phiInst();
+
+    word momPhiName(phi.name());
+    word fallBackMomPhiName("phi");
+    if (externalPhi != word::null)
+    {
+        momPhiName = externalPhi;
+        fallBackMomPhiName = "rhoPhi";
+    }
+    // Momentum scheme
+    bool added =
+        addDivScheme(momPhiName, UInst().name(), fallBackMomPhiName, "U");
+
+    // Turbulence model schemes
+    const incompressible::RASModelVariables& rmv = RASModelVariables_();
+    if (rmv.hasTMVar1())
+    {
+        const word& currentName = rmv.TMVar1Inst().name();
+        const word& baseName = rmv.TMVar1BaseName();
+        bool addedTMVar1 =
+            addDivScheme(phi.name(), currentName, "phi", baseName);
+        added = added || addedTMVar1;
+    }
+    if (rmv.hasTMVar2())
+    {
+        const word& currentName = rmv.TMVar2Inst().name();
+        const word& baseName = rmv.TMVar2BaseName();
+        bool addedTMVar2 =
+            addDivScheme(phi.name(), currentName, "phi", baseName);
+        added = added || addedTMVar2;
+    }
+    // If schemed were added, write the fvSchemes dictionary to avoid the
+    // added info being lost if the user changes fvSchemes in run-time
+    writeFvSchemes(added);
 }
 
 

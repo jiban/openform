@@ -253,6 +253,9 @@ public:
             //- Write dummy turbulent fields to allow for continuation in
             //- multi-point, turbulent runs
             bool write() const;
+
+            //- Add extra convection schemes
+            virtual void addExtraSchemes(const word& phi=word::null);
 };
 
 

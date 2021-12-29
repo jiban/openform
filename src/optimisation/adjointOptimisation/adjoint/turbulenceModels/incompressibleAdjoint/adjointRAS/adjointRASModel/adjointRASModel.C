@@ -147,6 +147,7 @@ adjointRASModel::adjointRASModel
 
     adjointTMVariable1Ptr_(nullptr),
     adjointTMVariable2Ptr_(nullptr),
+    adjointTMVariablesBaseNames_(0),
     adjointTMVariable1MeanPtr_(nullptr),
     adjointTMVariable2MeanPtr_(nullptr),
     adjMomentumBCSourcePtr_( createZeroBoundaryPtr<vector>(mesh_) ),
@@ -348,6 +349,43 @@ autoPtr<volScalarField>& adjointRASModel::getAdjointTMVariable1InstPtr()
 autoPtr<volScalarField>& adjointRASModel::getAdjointTMVariable2InstPtr()
 {
     return adjointTMVariable2Ptr_;
+}
+
+
+const wordList& adjointRASModel::getAdjointTMVariablesBaseNames()
+{
+    return adjointTMVariablesBaseNames_;
+}
+
+
+tmp<volSymmTensorField> adjointRASModel::devReff() const
+{
+    const volVectorField& Ua = adjointVars_.UaInst();
+    return tmp<volSymmTensorField>::New
+        (
+             IOobject
+             (
+                  "devRhoReff",
+                  runTime_.timeName(),
+                  mesh_,
+                  IOobject::NO_READ,
+                  IOobject::NO_WRITE
+             ),
+            -nuEff()*dev(twoSymm(fvc::grad(Ua)))
+        );
+}
+
+
+tmp<fvVectorMatrix> adjointRASModel::divDevReff(volVectorField& U) const
+{
+    tmp<volScalarField> tNuEff(nuEff());
+    const volScalarField& nuEff = tNuEff();
+
+    return
+    (
+      - fvm::laplacian(nuEff, U)
+      - fvc::div(nuEff*dev(T(fvc::grad(U))))
+    );
 }
 
 

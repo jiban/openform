@@ -66,20 +66,6 @@ Foam::incompressibleAdjointVars& Foam::adjointSimple::allocateVars()
 }
 
 
-void Foam::adjointSimple::addExtraSchemes()
-{
-    if (adjointVars_.useSolverNameForFields())
-    {
-        WarningInFunction
-            << "useSolverNameForFields is set to true for adjointSolver "
-            << solverName() << nl << tab
-            << "Appending variable names with the solver name" << nl << tab
-            << "Please adjust the necessary entries in fvSchemes and fvSolution"
-            << nl << endl;
-    }
-}
-
-
 void Foam::adjointSimple::continuityErrors()
 {
     const surfaceScalarField& phia = adjointVars_.phiaInst();
@@ -126,7 +112,6 @@ Foam::adjointSimple::adjointSimple
         ).ptr()
     );
 
-    addExtraSchemes();
     setRefCell
     (
         adjointVars_.paInst(),
@@ -362,6 +347,7 @@ bool Foam::adjointSimple::loop()
 
 void Foam::adjointSimple::preLoop()
 {
+    adjointSimple::addExtraSchemes();
     // Reset mean fields before solving
     adjointVars_.resetMeanFields();
 }
