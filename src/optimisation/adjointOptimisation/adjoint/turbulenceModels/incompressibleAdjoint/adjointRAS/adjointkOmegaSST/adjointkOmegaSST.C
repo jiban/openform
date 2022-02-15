@@ -192,14 +192,16 @@ tmp<volScalarField> adjointkOmegaSST::dR_dnut()
         if (isA<nutkWallFunctionFvPatchScalarField>(nutb))
         {
             fvPatchScalarField& bf = dRdnut.boundaryFieldRef()[pI];
-            const scalarField kSnGrad = k().boundaryField()[pI].snGrad();
-            const scalarField omegaSnGrad =
-                omega().boundaryField()[pI].snGrad();
+            const scalarField kSnGrad(k().boundaryField()[pI].snGrad());
+            const scalarField omegaSnGrad
+            (
+                omega().boundaryField()[pI].snGrad()
+            );
             const fvPatchScalarField& akb = alphaK_.boundaryField()[pI];
             const fvPatchScalarField& aOmegab = alphaOmega_.boundaryField()[pI];
-            const vectorField USnGrad = U.boundaryField()[pI].snGrad();
+            const vectorField USnGrad(U.boundaryField()[pI].snGrad());
             const fvPatchTensorField& gradUb = gradU_.boundaryField()[pI];
-            const vectorField nf = mesh_.boundary()[pI].nf();
+            const vectorField nf(mesh_.boundary()[pI].nf());
             forAll(faceCells, fI)
             {
                 const label cI(faceCells[fI]);
@@ -298,7 +300,7 @@ tmp<volScalarField> adjointkOmegaSST::dR_dF1() const
 {
     const volVectorField& U = primalVars_.U();
     const surfaceScalarField& phi = primalVars_.phi();
-    volScalarField GPrime = GbyNu(GbyNu0_, F2_, S2_);
+    volScalarField GPrime(GbyNu(GbyNu0_, F2_, S2_));
     word scheme("coeffsDiff");
     volScalarField divU(fvc::div(fvc::absolute(phi, U)));
 
@@ -338,12 +340,14 @@ tmp<volScalarField> adjointkOmegaSST::dR_dF1() const
         }
     }
 
-    volScalarField dR_dF1_coeffs =
+    volScalarField dR_dF1_coeffs
+    (
         zeroFirstCell_*wa()
        *(
             (gamma1_ - gamma2_)*((2.0/3.0)*omega()*divU - GPrime)
           + omega()*omega()*(beta1_ - beta2_) + CDkOmega_
-        );
+        )
+    );
 
     forAll(mesh_.boundary(), pI)
     {
@@ -421,9 +425,11 @@ tmp<volScalarField> adjointkOmegaSST::waEqnSourceFromF1() const
     volScalarField dF1_domega(this->dF1_domega(arg1));
     volVectorField dF1_dGradOmega(this->dF1_dGradOmega(arg1));
 
-    surfaceScalarField dR_dGradOmega =
+    surfaceScalarField dR_dGradOmega
+    (
         interpolationScheme<vector>("div(dR_dGradOmega)")().
-            interpolate(dR_dF1*dF1_dGradOmega) & mesh_.Sf();
+            interpolate(dR_dF1*dF1_dGradOmega) & mesh_.Sf()
+    );
 
     return
         (
@@ -459,9 +465,11 @@ tmp<fvScalarMatrix> adjointkOmegaSST::waEqnSourceFromCDkOmega() const
         }
     }
 
-    surfaceScalarField sourceFaces =
+    surfaceScalarField sourceFaces
+    (
         interpolationScheme<vector>("sourceAdjontkOmegaSST")().
-            interpolate(source) & mesh_.Sf();
+            interpolate(source) & mesh_.Sf()
+    );
 
     return
         (
@@ -513,8 +521,8 @@ tmp<volScalarField> adjointkOmegaSST::dF1_dk
         (
             4*pow3(arg1)*(scalar(1) - F1_*F1_)
            *(
-                  case_1_F1_*0.5/(betaStar_*omega()*sqrt(k())*y_)
-                + case_4_F1_*scalar(4)*alphaOmega2_/(CDkOmegaPlus_*sqr(y_))
+                case_1_F1_*0.5/(betaStar_*omega()*sqrt(k())*y_)
+              + case_4_F1_*scalar(4)*alphaOmega2_/(CDkOmegaPlus_*sqr(y_))
             )
         );
 }
@@ -554,9 +562,11 @@ tmp<volScalarField> adjointkOmegaSST::kaEqnSourceFromF1() const
     volScalarField dF1_dk(this->dF1_dk(arg1));
     volVectorField dF1_dGradK(this->dF1_dGradK(arg1));
 
-    surfaceScalarField dR_dGradK =
+    surfaceScalarField dR_dGradK
+    (
         interpolationScheme<vector>("div(dR_dGradK)")().
-            interpolate(dR_dF1*dF1_dGradK) & mesh_.Sf();
+            interpolate(dR_dF1*dF1_dGradK) & mesh_.Sf()
+    );
 
     return
         (
@@ -665,14 +675,16 @@ tmp<volScalarField> adjointkOmegaSST::dNutdbMult
 
     // Terms form the tranpose gradient in the momentum stresses
     const surfaceVectorField& Sf = mesh_.Sf();
-    surfaceTensorField fluxTranspose =
-        reverseLinear<vector>(mesh_).interpolate(Ua)*Sf;
+    surfaceTensorField fluxTranspose
+    (
+        reverseLinear<vector>(mesh_).interpolate(Ua)*Sf
+    );
     forAll(mesh_.boundary(), pI)
     {
         const fvPatchVectorField& Ub = U.boundaryField()[pI];
         if (!isA<coupledFvPatchVectorField>(Ub))
         {
-            const vectorField Uai = Ua.boundaryField()[pI].patchInternalField();
+            const vectorField Uai(Ua.boundaryField()[pI].patchInternalField());
             const vectorField& Sfb = Sf.boundaryField()[pI];
             fluxTranspose.boundaryFieldRef()[pI] = Uai*Sfb;
         }
@@ -684,9 +696,11 @@ tmp<volScalarField> adjointkOmegaSST::dNutdbMult
         const fvPatchScalarField& bc = nut.boundaryField()[pI];
         if (isA<zeroGradientFvPatchScalarField>(bc))
         {
-            const vectorField Uai = Ua.boundaryField()[pI].patchInternalField();
-            const tensorField dev2GradU =
-                dev2(gradU_.boundaryField()[pI].patchInternalField());
+            const vectorField Uai(Ua.boundaryField()[pI].patchInternalField());
+            const tensorField dev2GradU
+            (
+                dev2(gradU_.boundaryField()[pI].patchInternalField())
+            );
             const vectorField& Sfb = Sf.boundaryField()[pI];
             const labelList& faceCells = mesh_.boundary()[pI].faceCells();
             forAll(faceCells, fI)
@@ -739,12 +753,16 @@ tmp<volVectorField> adjointkOmegaSST::convectionMeanFlowSource
         convectionScheme(primalField.name())
     );
 
-    surfaceVectorField interpolatedPrimal =
-        primalInterpolationScheme().interpolate(primalField)*mesh_.Sf();
-    surfaceVectorField flux =
+    surfaceVectorField interpolatedPrimal
+    (
+        primalInterpolationScheme().interpolate(primalField)*mesh_.Sf()
+    );
+    surfaceVectorField flux
+    (
       //reverseLinear<scalar>(mesh_).interpolate(adjointField)
         linear<scalar>(mesh_).interpolate(adjointField)
-       *interpolatedPrimal;
+       *interpolatedPrimal
+    );
 
     const volVectorField& U = primalVars_.U();
     forAll(mesh_.boundary(), pI)
@@ -770,8 +788,10 @@ tmp<volVectorField> adjointkOmegaSST::GMeanFlowSource
     tmp<volSymmTensorField>& GbyNuMult
 ) const
 {
-    surfaceVectorField flux =
-        mesh_.Sf() & reverseLinear<symmTensor>(mesh_).interpolate(GbyNuMult());
+    surfaceVectorField flux
+    (
+        mesh_.Sf() & reverseLinear<symmTensor>(mesh_).interpolate(GbyNuMult())
+    );
 
     const volVectorField& U = primalVars_.U();
     forAll(mesh_.boundary(), pI)
@@ -800,8 +820,10 @@ tmp<volVectorField> adjointkOmegaSST::divUMeanFlowSource
     tmp<volScalarField>& divUMult
 ) const
 {
-    surfaceVectorField flux =
-        mesh_.Sf()*reverseLinear<scalar>(mesh_).interpolate(divUMult());
+    surfaceVectorField flux
+    (
+        mesh_.Sf()*reverseLinear<scalar>(mesh_).interpolate(divUMult())
+    );
 
     const volVectorField& U = primalVars_.U();
     forAll(mesh_.boundary(), pI)
@@ -833,9 +855,11 @@ tmp<volScalarField> adjointkOmegaSST::diffusionNutMeanFlowMult
 ) const
 {
     // Note: we could grab the snGrad scheme from the diffusion term directly
-    surfaceScalarField snGradPrimal = fvc::snGrad(primalField)*mesh_.magSf();
-    surfaceScalarField flux =
-        reverseLinear<scalar>(mesh_).interpolate(adjointField)*snGradPrimal;
+    surfaceScalarField snGradPrimal(fvc::snGrad(primalField)*mesh_.magSf());
+    surfaceScalarField flux
+    (
+        reverseLinear<scalar>(mesh_).interpolate(adjointField)*snGradPrimal
+    );
 
     const volVectorField& U = primalVars_.U();
     forAll(mesh_.boundary(), pI)
@@ -1052,17 +1076,22 @@ void adjointkOmegaSST::updatePrimalRelatedFields()
 
         // Switch fields for F1
         {
-            volScalarField arg1_C3 =
-                 (scalar(1)/betaStar_)*sqrt(k())/(omega()*y_)
-               - scalar(500)*nu()/(sqr(y_)*omega());
-            volScalarField arg1_C2 =
-                 max
-                 (
-                     (scalar(1)/betaStar_)*sqrt(k())/(omega()*y_),
-                     scalar(500)*nu()/(sqr(y_)*omega())
-                 )
-               - (4*alphaOmega2_)*k()/(CDkOmegaPlus_*sqr(y_));
-            volScalarField arg1_C1 =
+            volScalarField arg1_C3
+            (
+                (scalar(1)/betaStar_)*sqrt(k())/(omega()*y_)
+              - scalar(500)*nu()/(sqr(y_)*omega())
+            );
+            volScalarField arg1_C2
+            (
+                max
+                (
+                    (scalar(1)/betaStar_)*sqrt(k())/(omega()*y_),
+                    scalar(500)*nu()/(sqr(y_)*omega())
+                )
+              - (4*alphaOmega2_)*k()/(CDkOmegaPlus_*sqr(y_))
+            );
+            volScalarField arg1_C1
+            (
                 min
                 (
                     max
@@ -1071,10 +1100,13 @@ void adjointkOmegaSST::updatePrimalRelatedFields()
                         scalar(500)*nu()/(sqr(y_)*omega())
                     ),
                     (4*alphaOmega2_)*k()/(CDkOmegaPlus_*sqr(y_))
-                ) - scalar(10);
-            volScalarField CDkOmegaPlus_C1 =
+                ) - scalar(10)
+            );
+            volScalarField CDkOmegaPlus_C1
+            (
                 CDkOmega_
-              - dimensionedScalar("1.0e-10", dimless/sqr(dimTime), 1.0e-10);
+              - dimensionedScalar("1.0e-10", dimless/sqr(dimTime), 1.0e-10)
+            );
 
             case_1_F1_ = pos(arg1_C3)*neg(arg1_C2)*neg(arg1_C1);
             case_2_F1_ = neg0(arg1_C3)*neg(arg1_C2)*neg(arg1_C1);
@@ -1084,16 +1116,20 @@ void adjointkOmegaSST::updatePrimalRelatedFields()
 
         // Switch fields for nut
         {
-            volScalarField nut_C1 = a1_*omega() - b1_*F2_*S_;
-            volScalarField arg2_C2 =
+            volScalarField nut_C1(a1_*omega() - b1_*F2_*S_);
+            volScalarField arg2_C2
+            (
                 (scalar(2)/betaStar_)*sqrt(k())/(omega()*y_)
-              - scalar(500)*nu()/(sqr(y_)*omega());
-            volScalarField arg2_C1 =
+              - scalar(500)*nu()/(sqr(y_)*omega())
+            );
+            volScalarField arg2_C1
+            (
                 max
                 (
                     (scalar(2)/betaStar_)*sqrt(k())/(omega()*y_),
                     scalar(500)*nu()/(sqr(y_)*omega())
-                ) - scalar(100);
+                ) - scalar(100)
+            );
 
             case_1_nut_ = pos(nut_C1);
             case_2_nut_ = neg0(nut_C1)*pos(arg2_C2)*neg(arg2_C1);
@@ -1101,9 +1137,11 @@ void adjointkOmegaSST::updatePrimalRelatedFields()
         }
 
         {
-            volScalarField GPrime_C1 =
+            volScalarField GPrime_C1
+            (
                 GbyNu0_
-              - (c1_/a1_)*betaStar_*omega()*max(a1_*omega(), b1_*F2_*S_);
+              - (c1_/a1_)*betaStar_*omega()*max(a1_*omega(), b1_*F2_*S_)
+            );
             case_1_GPrime_ = neg(GPrime_C1);
             case_2_GPrime_ = pos0(GPrime_C1);
         }

@@ -116,12 +116,12 @@ tmp<volScalarField::Internal> kOmegaSST::computeG()
         this->type() + ":GbyNu",
         (tgradU() && dev(twoSymm(tgradU())))
     );
-    tmp<volScalarField::Internal> tG
-    (
+    auto tG =
         tmp<volScalarField::Internal>::New
-            (turbModel.GName(), nutRefInst()*GbyNu0)
-    );
-    volScalarField::Internal& G = tG.ref();
+        (
+            turbModel.GName(),
+            nutRefInst()*GbyNu0
+        );
     // Use correctBoundaryConditions instead of updateCoeffs to avoid
     // messing with updateCoeffs in the next iteration of omegaEqn
     TMVar2Inst().correctBoundaryConditions();
