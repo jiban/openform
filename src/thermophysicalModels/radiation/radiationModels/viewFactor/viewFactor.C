@@ -35,6 +35,8 @@ License
 #include "boundaryRadiationProperties.H"
 #include "lduCalculatedProcessorField.H"
 
+
+
 using namespace Foam::constant;
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -79,7 +81,7 @@ void Foam::radiation::viewFactor::initialise()
         << "Total number of clusters : " << totalNCoarseFaces_ << endl;
 
 
-    useDirect_ = coeffs_.get<bool>("useDirectSolver");
+    useDirect_ = coeffs_.getOrDefault<bool>("useDirectSolver", true);
 
     map_.reset
     (
@@ -386,6 +388,8 @@ void Foam::radiation::viewFactor::initialise()
 
         if (coeffs_.get<bool>("smoothing"))
         {
+            scalar maxDelta = 0;
+            scalar totalDelta = 0;
             forAll (myF, i)
             {
                 scalar sumF = 0.0;
@@ -399,7 +403,17 @@ void Foam::radiation::viewFactor::initialise()
                 {
                     myFij[j] *= (1.0 - delta/(sumF + 0.001));
                 }
+                totalDelta += delta;
+                if (delta > maxDelta)
+                {
+                    maxDelta = delta;
+                }
             }
+            totalDelta /= myF.size();
+            reduce(totalDelta, sumOp<scalar>());
+            reduce(maxDelta, maxOp<scalar>());
+            Info << "Smoothng average delta : " << totalDelta << endl;
+            Info << "Smoothng maximum delta : " << maxDelta << nl << endl;
         }
     }
 
@@ -786,7 +800,7 @@ void Foam::radiation::viewFactor::calculate()
         {
             const labelList globalToCompact
             (
-                invert(compactGlobalIds.size(), compactGlobalIds)
+                invert(totalNCoarseFaces_, compactGlobalIds)
             );
 
             scalarField& diag = matrixPtr_->diag(localCoarseEave.size());
