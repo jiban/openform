@@ -69,6 +69,18 @@ private:
         void operator=(const DESModel&) = delete;
 
 
+protected:
+
+    // Protected Data
+
+        dimensionedScalar Ctrans_;
+
+
+    // Protected Member Functions
+
+        tmp<volScalarField> Ssigma(const volTensorField& gradU) const;
+
+
 public:
 
     typedef typename BasicTurbulenceModel::alphaField alphaField;
@@ -96,6 +108,9 @@ public:
 
 
     // Public Member Functions
+
+        //- Re-read model coefficients if they have changed
+        virtual bool read();
 
         //- Return the LES field indicator
         virtual tmp<volScalarField> LESRegion() const = 0;

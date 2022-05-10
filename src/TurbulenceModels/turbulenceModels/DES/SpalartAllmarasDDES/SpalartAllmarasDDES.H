@@ -85,6 +85,9 @@ protected:
 
     // Protected data
 
+        //- Switch to activate grey-area enhanced sigma-DDES
+        Switch useSigma_;
+
         // Model coefficients
 
             dimensionedScalar Cd1_;
@@ -92,6 +95,14 @@ protected:
 
 
     // Protected Member Functions
+
+        virtual tmp<volScalarField> Stilda
+        (
+            const volScalarField& chi,
+            const volScalarField& fv1,
+            const volTensorField& gradU,
+            const volScalarField& dTilda
+        ) const;
 
         //- Length scale
         virtual tmp<volScalarField> dTilda
