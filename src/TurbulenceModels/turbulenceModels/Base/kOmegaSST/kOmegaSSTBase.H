@@ -273,6 +273,14 @@ protected:
             const volTensorField& gradU
         ) const;
 
+        //- Return (G/nu)_0
+        virtual tmp<volScalarField::Internal> GbyNu0
+        (
+            const volTensorField& gradU,
+            const volScalarField& F1,
+            const volScalarField& S2
+        ) const;
+
         //- Return G/nu
         virtual tmp<volScalarField::Internal> GbyNu
         (

@@ -165,6 +165,22 @@ tmp<volScalarField::Internal> kOmegaSSTBase<BasicEddyViscosityModel>::epsilonByk
 
 
 template<class BasicEddyViscosityModel>
+tmp<volScalarField::Internal> kOmegaSSTBase<BasicEddyViscosityModel>::GbyNu0
+(
+    const volTensorField& gradU,
+    const volScalarField& F1,
+    const volScalarField& S2
+) const
+{
+    return tmp<volScalarField::Internal>::New
+    (
+        IOobject::scopedName(this->type(), "GbyNu"),
+        gradU() && dev(twoSymm(gradU()))
+    );
+}
+
+
+template<class BasicEddyViscosityModel>
 tmp<volScalarField::Internal> kOmegaSSTBase<BasicEddyViscosityModel>::GbyNu
 (
     const volScalarField::Internal& GbyNu0,
@@ -510,11 +526,7 @@ void kOmegaSSTBase<BasicEddyViscosityModel>::correct()
 
     tmp<volTensorField> tgradU = fvc::grad(U);
     volScalarField S2(this->S2(F1, tgradU()));
-    volScalarField::Internal GbyNu0
-    (
-        this->type() + ":GbyNu",
-        (tgradU() && dev(twoSymm(tgradU())))
-    );
+    volScalarField::Internal GbyNu0(this->GbyNu0(tgradU(), F1, S2));
     volScalarField::Internal G(this->GName(), nut*GbyNu0);
     tgradU.clear();
 

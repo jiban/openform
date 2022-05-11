@@ -46,8 +46,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef kOmegaSSTDDES_H
-#define kOmegaSSTDDES_H
+#ifndef Foam_kOmegaSSTDDES_H
+#define Foam_kOmegaSSTDDES_H
 
 #include "kOmegaSSTDES.H"
 
@@ -82,6 +82,9 @@ protected:
 
     // Protected data
 
+        //- Switch to activate grey-area enhanced sigma-DDES
+        Switch useSigma_;
+
         // Model coefficients
 
             dimensionedScalar Cd1_;
@@ -90,6 +93,13 @@ protected:
 
     // Protected Member Functions
 
+        //- Return square of strain rate
+        virtual tmp<volScalarField> S2
+        (
+            const volScalarField& F1,
+            const volTensorField& gradU
+        ) const;
+
         //- Length scale
         virtual tmp<volScalarField> dTilda
         (
@@ -97,6 +107,21 @@ protected:
             const volScalarField& CDES
         ) const;
 
+        //- Return (G/nu)_0
+        virtual tmp<volScalarField::Internal> GbyNu0
+        (
+            const volTensorField& gradU,
+            const volScalarField& F1,
+            const volScalarField& S2
+        ) const;
+
+        //- Return G/nu
+        virtual tmp<volScalarField::Internal> GbyNu
+        (
+            const volScalarField::Internal& GbyNu0,
+            const volScalarField::Internal& F2,
+            const volScalarField::Internal& S2
+        ) const;
 
 public:
 
