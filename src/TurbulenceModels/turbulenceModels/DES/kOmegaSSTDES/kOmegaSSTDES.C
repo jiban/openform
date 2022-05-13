@@ -81,10 +81,7 @@ tmp<volScalarField> kOmegaSSTDES<BasicTurbulenceModel>::dTilda
     const volScalarField& CDES
 ) const
 {
-    const volScalarField& k = this->k_;
-    const volScalarField& omega = this->omega_;
-
-    return min(CDES*this->delta(), sqrt(k)/(this->betaStar_*omega));
+    return min(lengthScaleLES(CDES), lengthScaleRAS());
 }
 
 
@@ -198,6 +195,28 @@ bool kOmegaSSTDES<BasicTurbulenceModel>::read()
 
 
 template<class BasicTurbulenceModel>
+Foam::tmp<Foam::volScalarField>
+kOmegaSSTDES<BasicTurbulenceModel>::lengthScaleRAS() const
+{
+    const volScalarField& k = this->k_;
+    const volScalarField& omega = this->omega_;
+
+    return sqrt(k)/(this->betaStar_*omega);
+}
+
+
+template<class BasicTurbulenceModel>
+Foam::tmp<Foam::volScalarField>
+kOmegaSSTDES<BasicTurbulenceModel>::lengthScaleLES
+(
+    const volScalarField& CDES
+) const
+{
+    return CDES*this->delta();
+}
+
+
+template<class BasicTurbulenceModel>
 tmp<volScalarField> kOmegaSSTDES<BasicTurbulenceModel>::LESRegion() const
 {
     const volScalarField& k = this->k_;
@@ -214,15 +233,7 @@ tmp<volScalarField> kOmegaSSTDES<BasicTurbulenceModel>::LESRegion() const
     return tmp<volScalarField>::New
     (
         IOobject::scopedName("DES", "LESRegion"),
-        neg
-        (
-            dTilda
-            (
-                mag(fvc::grad(U)),
-                F1*CDESkom_ + (1 - F1)*CDESkeps_
-            )
-          - sqrt(k)/(this->betaStar_*omega)
-        )
+        neg(dTilda(mag(fvc::grad(U)), CDES(F1)) - lengthScaleRAS())
     );
 }
 
