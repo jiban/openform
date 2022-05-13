@@ -167,6 +167,11 @@ kOmegaSSTDES<BasicTurbulenceModel>::kOmegaSSTDES
         )
     )
 {
+    WarningInFunction
+        << "This model is not recommended and will be deprecated in future "
+        << "releases. Please consider using the DDES/IDDES versions instead"
+        << endl;
+
     if (type == typeName)
     {
         this->printCoeffs(type);
