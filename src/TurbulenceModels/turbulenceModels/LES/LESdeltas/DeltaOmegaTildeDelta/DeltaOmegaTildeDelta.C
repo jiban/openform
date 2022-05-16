@@ -64,46 +64,38 @@ void Foam::LESModels::DeltaOmegaTildeDelta::calcDelta()
     );
 
     const cellList& cells = mesh.cells();
-    const vectorField& cellC = mesh.cellCentres();
-    scalarField hmax(cells.size());
+    const vectorField& cellCentres = mesh.cellCentres();
+    const vectorField& faceCentres = mesh.faceCentres();
+    const volScalarField& hmax = hmaxPtr_();
 
-    forAll(cells, celli)
+    forAll(hmax, celli)
     {
-        scalar deltaMaxTmp = 0.0;
-
-        const point& cc = cellC[celli];
-        const labelList& cellPoints = mesh.cellPoints()[celli];
+        const labelList& cFaces = cells[celli];
+        const point& cc = cellCentres[celli];
         const vector& nv = nvecvort[celli];
 
-        // loop over all vertices
-        for (const label pointi : cellPoints)
+        scalar deltaMaxTmp = hmax[celli];
+        for (const label facei : cFaces)
         {
-            const point& pt = mesh.points()[pointi];
-            deltaMaxTmp = max(mag(nv ^ (pt - cc)), deltaMaxTmp);
+            const point& fc = faceCentres[facei];
+            deltaMaxTmp = max(deltaMaxTmp, mag(nv & (fc - cc)));
         }
 
-        hmax[celli] = deltaCoeff_*Foam::sqrt(1.0/3.0)*2.0*deltaMaxTmp;
+        delta_[celli] = deltaCoeff_*Foam::sqrt(1.0/3.0)*2.0*deltaMaxTmp;
     }
 
     const label nD = mesh.nGeometricD();
 
-    if (nD == 3)
-    {
-        delta_.primitiveFieldRef() = hmax;
-    }
-    else if (nD == 2)
+    if (nD == 2)
     {
         WarningInFunction
-            << "Case is 2D, LES is not strictly applicable\n"
+            << "Case is 2D, LES is not strictly applicable" << nl
             << endl;
-
-        delta_.primitiveFieldRef() = hmax;
     }
-    else
+    else if (nD != 3)
     {
         FatalErrorInFunction
-            << "Case is not 3D or 2D, LES is not applicable"
-            << exit(FatalError);
+            << "Case must be either 2D or 3D" << exit(FatalError);
     }
 
     // Handle coupled boundaries
@@ -124,7 +116,7 @@ Foam::LESModels::DeltaOmegaTildeDelta::DeltaOmegaTildeDelta
     hmaxPtr_(nullptr),
     deltaCoeff_
     (
-        dict.optionalSubDict(type() + "Coeffs").lookupOrDefault<scalar>
+        dict.optionalSubDict(type() + "Coeffs").getOrDefault<scalar>
         (
             "deltaCoeff",
             1.025
@@ -132,7 +124,7 @@ Foam::LESModels::DeltaOmegaTildeDelta::DeltaOmegaTildeDelta
     ),
     requireUpdate_
     (
-        dict.optionalSubDict(type() + "Coeffs").lookupOrDefault<bool>
+        dict.optionalSubDict(type() + "Coeffs").getOrDefault<bool>
         (
             "requireUpdate", true
         )

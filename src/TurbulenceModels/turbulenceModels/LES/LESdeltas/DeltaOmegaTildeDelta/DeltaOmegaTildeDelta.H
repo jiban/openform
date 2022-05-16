@@ -70,7 +70,7 @@ class DeltaOmegaTildeDelta
     // Private data
 
         //- Run-time selectable delta for hmax
-        //  Defaults to the maxDeltaXYZ model if not supplied
+        //  Defaults to the maxDeltaxyz model if not supplied
         autoPtr<LESdelta> hmaxPtr_;
 
         //- Model coefficient
