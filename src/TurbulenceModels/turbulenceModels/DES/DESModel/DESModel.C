@@ -34,13 +34,66 @@ namespace Foam
 namespace LESModels
 {
 
-// * * * * * * * * * * * * Protected Member Functions  * * * * * * * * * * * //
+// * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
+
+template<class BasicTurbulenceModel>
+DESModel<BasicTurbulenceModel>::DESModel
+(
+    const word& type,
+    const alphaField& alpha,
+    const rhoField& rho,
+    const volVectorField& U,
+    const surfaceScalarField& alphaRhoPhi,
+    const surfaceScalarField& phi,
+    const transportModel& transport,
+    const word& propertiesName
+)
+:
+    LESeddyViscosity<BasicTurbulenceModel>
+    (
+        type,
+        alpha,
+        rho,
+        U,
+        alphaRhoPhi,
+        phi,
+        transport,
+        propertiesName
+    ),
+    Ctrans_
+    (
+        dimensioned<scalar>::getOrAddToDict
+        (
+            "Ctrans",
+            this->coeffDict_,
+            60.0
+        )
+    )
+{}
+
+
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+template<class BasicTurbulenceModel>
+bool DESModel<BasicTurbulenceModel>::read()
+{
+    if (LESeddyViscosity<BasicTurbulenceModel>::read())
+    {
+        Ctrans_.readIfPresent(this->coeffDict());
+
+        return true;
+    }
+
+    return false;
+}
+
 
 template<class BasicTurbulenceModel>
 tmp<volScalarField> DESModel<BasicTurbulenceModel>::Ssigma
 (
-    const volTensorField& gradU
-) const
+    const volTensorField& gradU,
+    const dimensionedScalar& coeff
+)
 {
     const volTensorField G(gradU.T() & gradU);
 
@@ -101,7 +154,7 @@ tmp<volScalarField> DESModel<BasicTurbulenceModel>::Ssigma
     );
 
     return
-        Ctrans_
+        coeff
        *sigma3
        *(sigma1 - sigma2)
        *(sigma2 - sigma3)
@@ -109,57 +162,13 @@ tmp<volScalarField> DESModel<BasicTurbulenceModel>::Ssigma
 }
 
 
-// * * * * * * * * * * * * * * * Constructor * * * * * * * * * * * * * * * * //
-
 template<class BasicTurbulenceModel>
-DESModel<BasicTurbulenceModel>::DESModel
+tmp<volScalarField> DESModel<BasicTurbulenceModel>::Ssigma
 (
-    const word& type,
-    const alphaField& alpha,
-    const rhoField& rho,
-    const volVectorField& U,
-    const surfaceScalarField& alphaRhoPhi,
-    const surfaceScalarField& phi,
-    const transportModel& transport,
-    const word& propertiesName
-)
-:
-    LESeddyViscosity<BasicTurbulenceModel>
-    (
-        type,
-        alpha,
-        rho,
-        U,
-        alphaRhoPhi,
-        phi,
-        transport,
-        propertiesName
-    ),
-    Ctrans_
-    (
-        dimensioned<scalar>::getOrAddToDict
-        (
-            "Ctrans",
-            this->coeffDict_,
-            60.0
-        )
-    )
-{}
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-template<class BasicTurbulenceModel>
-bool DESModel<BasicTurbulenceModel>::read()
+    const volTensorField& gradU
+) const
 {
-    if (LESeddyViscosity<BasicTurbulenceModel>::read())
-    {
-        Ctrans_.readIfPresent(this->coeffDict());
-
-        return true;
-    }
-
-    return false;
+    return Ssigma(gradU, Ctrans_);
 }
 
 

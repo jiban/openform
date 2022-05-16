@@ -76,11 +76,6 @@ protected:
         dimensionedScalar Ctrans_;
 
 
-    // Protected Member Functions
-
-        tmp<volScalarField> Ssigma(const volTensorField& gradU) const;
-
-
 public:
 
     typedef typename BasicTurbulenceModel::alphaField alphaField;
@@ -114,6 +109,17 @@ public:
 
         //- Return the LES field indicator
         virtual tmp<volScalarField> LESRegion() const = 0;
+
+        //- Return modified strain rate
+        static tmp<volScalarField> Ssigma
+        (
+            const volTensorField& gradU,
+            const dimensionedScalar& coeff
+        );
+
+        //- Return modified strain rate
+        //  Uses Ctrans_ coefficient
+        tmp<volScalarField> Ssigma(const volTensorField& gradU) const;
 };
 
 
