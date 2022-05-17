@@ -78,10 +78,10 @@ void Foam::LESModels::DeltaOmegaTildeDelta::calcDelta()
         for (const label facei : cFaces)
         {
             const point& fc = faceCentres[facei];
-            deltaMaxTmp = max(deltaMaxTmp, mag(nv & (fc - cc)));
+            deltaMaxTmp = max(deltaMaxTmp, 2*mag(nv & (fc - cc)));
         }
 
-        delta_[celli] = deltaCoeff_*Foam::sqrt(1.0/3.0)*2.0*deltaMaxTmp;
+        delta_[celli] = deltaCoeff_*Foam::sqrt(1.0/3.0)*deltaMaxTmp;
     }
 
     const label nD = mesh.nGeometricD();

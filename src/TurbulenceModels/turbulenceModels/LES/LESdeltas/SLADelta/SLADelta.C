@@ -185,7 +185,7 @@ void Foam::LESModels::DeltaSLA::calcDelta()
             FKH = 1;
         }
 
-        delta_[celli] = deltaCoeff_*Foam::sqrt(1.0/3.0)*2.0*hmax[celli]*FKH;
+        delta_[celli] = deltaCoeff_*Foam::sqrt(1.0/3.0)*hmax[celli]*FKH;
     }
 
     label nD = mesh.nGeometricD();
@@ -226,10 +226,13 @@ Foam::LESModels::DeltaSLA::DeltaSLA
             1.025
         )
     ),
-    requireUpdate_(dict.optionalSubDict(type() + "Coeffs").getOrDefault<bool>
+    requireUpdate_
     (
-        "requireUpdate",
-        true)
+        dict.optionalSubDict(type() + "Coeffs").getOrDefault<bool>
+        (
+            "requireUpdate",
+            true
+        )
     ),
     shielding_
     (
