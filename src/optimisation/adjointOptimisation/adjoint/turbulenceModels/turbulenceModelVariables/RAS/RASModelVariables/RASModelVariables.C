@@ -373,17 +373,17 @@ void RASModelVariables::resetMeanFields()
         Info<< "Resetting mean turbulent fields to zero" << endl;
 
         // Reset fields to zero
-        if (TMVar1Ptr_)
+        if (hasTMVar1())
         {
             TMVar1MeanPtr_.ref() ==
                 dimensionedScalar(TMVar1Inst().dimensions(), Zero);
         }
-        if (TMVar2Ptr_)
+        if (hasTMVar2())
         {
             TMVar2MeanPtr_.ref() ==
                 dimensionedScalar(TMVar2Inst().dimensions(), Zero);
         }
-        if (nutPtr_)
+        if (hasNut())
         {
             nutMeanPtr_.ref() ==
                 dimensionedScalar(nutRefInst().dimensions(), Zero);
