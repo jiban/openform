@@ -528,7 +528,6 @@ void kOmegaSSTBase<BasicEddyViscosityModel>::correct()
     volScalarField S2(this->S2(F1, tgradU()));
     volScalarField::Internal GbyNu0(this->GbyNu0(tgradU(), F1, S2));
     volScalarField::Internal G(this->GName(), nut*GbyNu0);
-    tgradU.clear();
 
     // Update omega and G at the wall
     omega_.boundaryFieldRef().updateCoeffs();
