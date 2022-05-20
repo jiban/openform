@@ -945,10 +945,11 @@ void adjointkOmegaSST::addWallFunctionTerms
 
             const nutWallFunctionFvPatchScalarField& nutWF =
                 refCast<nutWallFunctionFvPatchScalarField>(nutWall);
-            const scalar Cmu = nutWF.Cmu();
-            const scalar kappa = nutWF.kappa();
-            const scalar E = nutWF.E();
-            const scalar yPlusLam = nutWF.yPlusLam();
+            const wallFunctionCoefficients& wallCoeffs = nutWF.wallCoeffs();
+            const scalar Cmu = wallCoeffs.Cmu();
+            const scalar kappa = wallCoeffs.kappa();
+            const scalar E = wallCoeffs.E();
+            const scalar yPlusLam = wallCoeffs.yPlusLam();
 
             const scalar Cmu25 = pow025(Cmu);
 
@@ -1955,8 +1956,9 @@ tmp<volVectorField> adjointkOmegaSST::adjointMeanFlowSource()
             const nutWallFunctionFvPatchScalarField& nutw =
                 refCast<nutWallFunctionFvPatchScalarField>
                     (nutRef().boundaryFieldRef()[patchi]);
-            const scalar Cmu = nutw.Cmu();
-            const scalar kappa = nutw.kappa();
+            const wallFunctionCoefficients& wallCoeffs = nutw.wallCoeffs();
+            const scalar Cmu = wallCoeffs.Cmu();
+            const scalar kappa = wallCoeffs.kappa();
             const scalar Cmu25 = pow025(Cmu);
 
             const labelList& faceCells = patch.faceCells();
