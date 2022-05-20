@@ -59,6 +59,21 @@ class kOmegaSST
     public RASModelVariables
 {
 
+protected:
+
+    // Protected data
+
+        //- Average of the production term
+        //  Avaraged separetely due the bi-zonal treatment next to the wall
+        autoPtr<volScalarField::Internal> GMean_;
+
+
+    // Protected Member functions
+
+        virtual void allocateMeanFields();
+        tmp<volScalarField::Internal> computeG();
+
+
 public:
 
     //- Runtime type information
@@ -94,6 +109,12 @@ public:
         {
             return true;
         }
+
+        //- Return the turbulence production term
+        virtual tmp<volScalarField::Internal> G();
+
+        //- Compute mean fields on the fly
+        virtual void computeMeanFields();
 
         //- Correct boundary conditions of turbulent fields
         virtual void correctBoundaryConditions
