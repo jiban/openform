@@ -164,6 +164,10 @@ kOmegaSSTDES<BasicTurbulenceModel>::kOmegaSSTDES
         )
     )
 {
+    // Note: Ctrans coeff is model specific; for k-w = 60
+    this->Ctrans_ =
+        dimensioned<scalar>::getOrAddToDict("Ctrans", this->coeffDict_, 60.0);
+
 
     if (type == typeName)
     {

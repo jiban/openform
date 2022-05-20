@@ -60,16 +60,10 @@ DESModel<BasicTurbulenceModel>::DESModel
         transport,
         propertiesName
     ),
-    Ctrans_
-    (
-        dimensioned<scalar>::getOrAddToDict
-        (
-            "Ctrans",
-            this->coeffDict_,
-            60.0
-        )
-    )
-{}
+    Ctrans_(dimless, Zero)
+{
+    // Note: Ctrans is model-specific and initialised in derived classes
+}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //

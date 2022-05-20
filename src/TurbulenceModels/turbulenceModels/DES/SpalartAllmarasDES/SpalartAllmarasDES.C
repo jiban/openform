@@ -166,6 +166,9 @@ SpalartAllmarasDES<BasicTurbulenceModel>::SpalartAllmarasDES
         )
     )
 {
+    // Note: Ctrans coeff is model specific; for S-A = 67.7
+    this->Ctrans_ =
+        dimensioned<scalar>::getOrAddToDict("Ctrans", this->coeffDict_, 67.7);
 
     if (type == typeName)
     {
