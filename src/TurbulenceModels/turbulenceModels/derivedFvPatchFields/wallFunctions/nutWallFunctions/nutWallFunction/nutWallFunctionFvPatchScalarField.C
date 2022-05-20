@@ -172,6 +172,13 @@ Foam::nutWallFunctionFvPatchScalarField::nutw
 }
 
 
+const Foam::wallFunctionCoefficients&
+Foam::nutWallFunctionFvPatchScalarField::wallCoeffs() const
+{
+    return wallCoeffs_;
+}
+
+
 void Foam::nutWallFunctionFvPatchScalarField::updateCoeffs()
 {
     if (updated())
