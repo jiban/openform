@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2018 OpenFOAM Foundation
-    Copyright (C) 2020-2021 OpenCFD Ltd.
+    Copyright (C) 2020-2022 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -47,6 +47,7 @@ License
 #include "HeatTransferCoeff.H"
 #include "ThermoReynoldsNumber.H"
 #include "WeberNumberReacting.H"
+#include "ParticleDose.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -69,7 +70,8 @@ License
     makeCloudFunctionObjectType(NusseltNumber, CloudType);                     \
     makeCloudFunctionObjectType(HeatTransferCoeff, CloudType);                 \
     makeCloudFunctionObjectType(ThermoReynoldsNumber, CloudType);              \
-    makeCloudFunctionObjectType(WeberNumberReacting, CloudType);
+    makeCloudFunctionObjectType(WeberNumberReacting, CloudType);               \
+    makeCloudFunctionObjectType(ParticleDose, CloudType);
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

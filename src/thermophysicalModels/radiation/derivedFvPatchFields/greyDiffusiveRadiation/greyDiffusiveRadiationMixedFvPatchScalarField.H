@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2016 OpenFOAM Foundation
+    Copyright (C) 2016-2022 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -35,10 +36,16 @@ Description
     (fvDOM), in which the radiation temperature is retrieved from the
     temperature field boundary condition.
 
+    An external radiative heat flux can be added using qRadExt. If
+    qRadExtDir is specified this ray closest to this direction is used,
+    otherwise the face normal is used as direction to set qRadExt.
+
 Usage
     \table
         Property     | Description             | Required    | Default value
         T            | temperature field name  | no          | T
+        qRadExt      | radiative external flux | no          | Zero
+        qRadExtDir   | radiative external flux direction | no          | Zero
     \endtable
 
     Example of the boundary condition specification:
@@ -85,6 +92,12 @@ class greyDiffusiveRadiationMixedFvPatchScalarField
 
         //- Name of temperature field
         word TName_;
+
+        //- External radiative flux
+        scalar qRadExt_;
+
+        //- External radiative flux direction
+        vector qRadExtDir_;
 
 public:
 

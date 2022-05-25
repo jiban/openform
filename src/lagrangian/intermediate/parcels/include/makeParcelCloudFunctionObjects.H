@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2018 OpenFOAM Foundation
-    Copyright (C) 2020-2021 OpenCFD Ltd.
+    Copyright (C) 2020-2022 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -44,6 +44,7 @@ License
 #include "RemoveParcels.H"
 #include "VoidFraction.H"
 #include "KinematicReynoldsNumber.H"
+#include "ParticleDose.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -63,7 +64,8 @@ License
     makeCloudFunctionObjectType(PatchParticleHistogram, CloudType);            \
     makeCloudFunctionObjectType(RemoveParcels, CloudType);                     \
     makeCloudFunctionObjectType(VoidFraction, CloudType);                      \
-    makeCloudFunctionObjectType(KinematicReynoldsNumber, CloudType);
+    makeCloudFunctionObjectType(KinematicReynoldsNumber, CloudType);           \
+    makeCloudFunctionObjectType(ParticleDose, CloudType);
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
